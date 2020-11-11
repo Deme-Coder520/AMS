@@ -263,15 +263,13 @@ body{
 	height:400px;
 }
 
-.login_bg{
-	position:fixed;
-	left:0;
-	top:0;
-	width:100%;
-	height:100%;
-	z-index:-9999;
-	background:url(../img/login-bg.jpg) no-repeat;
-}
+/*.login_bg{*/
+
+	/*background-size:cover;*/
+	/*background-image:url(../img/login-bg.jpg);*/
+/*}*/
+
+
 
 .login_form{
   width:330px;
