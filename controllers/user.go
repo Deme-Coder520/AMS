@@ -87,7 +87,7 @@ func (u *UserController) HandleLogin() {
 		return
 	}
 	// 4.跳转指定界面
-	u.Redirect("/article/index",302)
+	u.Redirect("/index",302)
 	//u.TplName = "index.html"
 }
 
