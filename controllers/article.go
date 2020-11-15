@@ -64,7 +64,7 @@ func (a *ArticleController) HandleAdd() {
 			return
 		}
 		//3.3给文件重命名
-		unix := time.Now().Format("2006_01_02 15-04-05") + ext
+		unix := time.Now().Format("20060102_150405") + ext
 		a.SaveToFile("artfile","./static/img/" + unix )//注意文件路径./开头
 		filePath = "/static/img/" + unix
 	}
@@ -76,7 +76,8 @@ func (a *ArticleController) HandleAdd() {
 		return
 	}
 	// 5.跳转页面（index.html）
-	a.TplName = "index.html"
+	a.Redirect("index.html",302)
+	//a.TplName = "index.html"
 }
 
 // ShowContent 展示详情页面
