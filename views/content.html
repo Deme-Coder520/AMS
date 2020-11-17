@@ -45,7 +45,9 @@
             </div>
             <div class="form_group">
                 <label>文章内容：</label>
-                <p class="detail">{{.article.ArtContent}}<br><br><img style="width: 200px;height: 100px" src="{{.article.ArtImg}}"></p>
+                <p class="detail">{{.article.ArtContent}}<br><br>{{if .article.ArtImg}}
+                    <img style="width: 200px;height: 100px" src="{{.article.ArtImg}}">{{end}}
+                </p>
             </div>
             <div class="form_group">
                 <label>阅读次数：</label>
@@ -53,7 +55,7 @@
             </div>
             <div class="form_group">
                 <label>创建时间：</label>
-                <p class="detail">{{.article.ArtTime.Format "2006-01-02 15:04:05"}}</p>
+                <p class="detail">{{.article.ArtCreateAt.Format "2006-01-02 15:04:05"}}</p>
                 <span>{{.errmsg}}</span>
             </div>
 

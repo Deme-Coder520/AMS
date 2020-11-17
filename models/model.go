@@ -20,7 +20,7 @@ type UserInfo struct {
 type Article struct {
 	Id int `orm:"pk;auto"`
 	ArtName string `orm:"size(48);unique"`
-	ArtCreateAt time.Time `orm:"auto_now;type(datetime)"`
+	ArtCreateAt time.Time `orm:"auto_now;type(date)"`
 	ArtCount int `orm:"default(0)"`
 	ArtContent string
 	ArtImg string `orm:"null"`

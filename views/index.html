@@ -17,8 +17,8 @@
     
     <div class="side_bar">
         <div class="user_info">
-            <img src="/static/img/person.png" alt="张大山">
-            <p>欢迎你 <em>李雷</em></p>
+            <img src="/static/img/java.jpg" alt="张大山">
+            <p>欢迎你 <em>java</em></p>
         </div>
 
         <div class="menu_con">
@@ -60,7 +60,7 @@
                     <td> {{.ArtCreateAt.Format "2006-01-02 15:04:05"}}</td>
                     <td>{{.ArtCount}}</td>
                     <td><a href="/deletearticle?id={{.Id}}" class="dels">删除</a> </td>
-                    <td><a href="/editarticle?id={{.Id}}">编辑</a></td>
+                    <td><a href="/edit?id={{.Id}}">编辑</a></td>
                     <td>财经新闻</td>
                 </tr>
                         {{end}}
