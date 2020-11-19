@@ -169,7 +169,7 @@ func (a *ArticleController) Edit() {
 			return
 		}
 		// 3.3将文件重命名
-		unix := time.Time{}.Format("20060102_150405")+ext
+		unix := time.Now().Format("20060102_150405")+ext
 		err := a.SaveToFile("artfile","./static/img/"+unix)
 		if err != nil {
 			beego.Info("文件保存本地失败")
@@ -189,7 +189,7 @@ func (a *ArticleController) Edit() {
 		if art.ArtContent != content {
 			art.ArtContent = content
 		}
-		if art.ArtImg != filePath {
+		if filePath != "" {
 			art.ArtImg = filePath
 		}
 		_,err = o.Update(&art)
@@ -205,4 +205,25 @@ func (a *ArticleController) Edit() {
 		a.Redirect("/index",302)
 		return
 	}
+}
+
+// Delete 删除业务处理
+func (a *ArticleController) Delete(){
+	// 1.获取文章id
+	id, _ := a.GetInt("id")
+	// 2.查询出对应数据并删除
+	o := orm.NewOrm()
+	article := models.Article{Id:id}
+	err := o.Read(&article)
+	if err != nil {
+		a.Data["code"] = "获取文章信息失败"
+		a.Redirect("/index",302)
+		return
+	}
+	_,err = o.Delete(&article)
+	if err != nil {
+		a.Data["code"] = "获取文章信息失败"
+	}
+	// 3.跳转列表页
+	a.Redirect("/index",302)
 }
