@@ -4,7 +4,9 @@ import (
 	"AMS/models"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
+	"math"
 	"path"
+	"strconv"
 	"time"
 )
 
@@ -12,14 +14,36 @@ type ArticleController struct {
 	beego.Controller
 }
 
-// ShowIndex 展示首页
+// ShowIndex 展示首页并实现分页功能
 func (a *ArticleController) ShowIndex(){
+	// 1.查询所有文章数据
 	o := orm.NewOrm()
 	var articles []models.Article
-	_,err := o.QueryTable("Article").All(&articles)
+	querySeter := o.QueryTable("Article")
+	/*_,err := querySeter.All(&articles)*/
+	count,_ := querySeter.Count()
+	// 2.设置每一页显示的数量，从而得到总的页数
+	var pageSize =2
+	pageCount := math.Ceil(float64(count)/float64(pageSize))// 向上取整，显示的页面不会出现小数
+	// 3.首页和末页
+	pi := a.GetString("pi")
+	pageIndex,err := strconv.Atoi(pi)
+	if err != nil {
+		pageIndex = 1// 首页没有传pageIndex的值，防止默认pageIndex为0
+	}
+	// 3.1每一页显示的个数
+	stat := pageSize*(pageIndex-1)
+	_,err = querySeter.Limit(pageSize,stat).All(&articles)
 	if err != nil {
 		a.Data["code"] = "获取文章数据失败"
+		a.Redirect("/index",302)
+		return
 	}
+	// 4.上一页和下一页(视图函数)
+
+	a.Data["count"] = count
+	a.Data["pageCount"] = pageCount
+	a.Data["pageIndex"] = pageIndex
 	a.Data["articles"] = articles
 	a.TplName = "index.html"
 }
