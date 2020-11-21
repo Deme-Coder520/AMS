@@ -22,9 +22,8 @@ func ShowPrePage(pi int)(pre string){
 }
 
 // ShowPrePage 实现下一页
-func ShowNextPage(pi int)(next string){
-	pageIndex := pi + 1
-	next = strconv.Itoa(pageIndex)
+func ShowNextPage(pi int)(next int){
+	next = pi + 1
 	return
 }
 

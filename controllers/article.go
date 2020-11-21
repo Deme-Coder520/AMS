@@ -39,11 +39,21 @@ func (a *ArticleController) ShowIndex(){
 		a.Redirect("/index",302)
 		return
 	}
-	// 4.上一页和下一页(视图函数)
+	// 4.上一页和下一页限制(视图函数)
+	var isFirstPage = false
+	var isLastPage = false
+	if pageIndex == 1 {
+		isFirstPage = true
+	}
+	if pageIndex == int(pageCount) {
+		isLastPage = true
+	}
 
 	a.Data["count"] = count
 	a.Data["pageCount"] = pageCount
 	a.Data["pageIndex"] = pageIndex
+	a.Data["isFirstPage"] = isFirstPage
+	a.Data["isLastPage"] = isLastPage
 	a.Data["articles"] = articles
 	a.TplName = "index.html"
 }

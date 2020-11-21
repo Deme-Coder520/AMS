@@ -67,18 +67,43 @@
             </table>
 
             <ul class="pagenation">
-                <li><a href="/index?pi=1">首页</a></li>
-                <li><a href="/index?pi={{.pageIndex | PrePage}}">上一页 </a> </li>
-                <li> <a href="/index?pi={{.pageIndex | NextPage}}">下一页</a></li>
-                <li><a href="/index?pi={{.pageCount}}">末页</a></li>
-                <li>共{{.count}}条记录/共{{.pageCount}}页/当前第{{.pageIndex}}页</li>
+                <li>共{{.count}}条记录</li>
+                <li><button onclick="first()"> << </button></li>
+                {{if .isFirstPage}}
+                    <li><button disabled="true"> < </button></li>
+                {{else}}
+                    <li><button onclick="pre()"> < </button></li>
+                {{end}}
+                <li>{{.pageIndex}}/{{.pageCount}}页</li>
+                {{if .isLastPage}}
+                    <li><button disabled="true"> > </button></li>
+                {{else}}
+                    <li><button onclick="next()"> > </button></li>
+                {{end}}
+                <li><button onclick="last()"> >> </button></li>
             </ul>
         </div>
     </div>
 </body>
 
 <script>
-   //window.onload =
+    //设置跳转首页
+    function first() {
+        window.location.href="/index?pi=1"
+    }
+    //跳转上一页
+    function pre() {
+        window.location.href="/index?pi={{.pageIndex | PrePage}}"
+    }
+    //跳转下一页
+    function next() {
+        window.location.href="/index?pi={{.pageIndex | NextPage}}"
+    }
+    //跳转末页
+    function last() {
+        window.location.href="/index?pi={{.pageCount}}"
+    }
+   //删除文章弹窗确认（也可window.onload =）
    $(function () {
        $(".del").click(function () {
            if (!confirm("是否确认删除？")) {
