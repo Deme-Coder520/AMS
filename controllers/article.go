@@ -35,7 +35,7 @@ func (a *ArticleController) ShowIndex(){
 	stat := pageSize*(pageIndex-1)
 	_,err = querySeter.Limit(pageSize,stat).All(&articles)
 	if err != nil {
-		a.Data["code"] = "获取文章数据失败"
+		beego.Info("获取文章数据失败")
 		a.Redirect("/index",302)
 		return
 	}
@@ -72,8 +72,8 @@ func (a *ArticleController) HandleAdd() {
 
 	// 2.校验数据（是否为空）
 	if artName == "" || artContent == "" {
-		a.Data["code"] = "Name or Content is empty"
-		a.TplName = "add.html"
+		beego.Info("文章名或内容不能为空")
+		a.Redirect("/addArticle",302)
 		return
 	}
 	// 3.校验文件
@@ -81,20 +81,21 @@ func (a *ArticleController) HandleAdd() {
 	if file != nil {
 		defer file.Close()
 		if err != nil {
-			a.Data["code"] = "上传图片失败"
+			beego.Info("上传文件失败")
+			a.Redirect("/addArticle",302)
 			return
 		}
 		// 3.1限制文件的格式.jpg/.png/.gif
 		ext := path.Ext(head.Filename)//获取文件拓展名
 		if ext != ".jpg" && ext != ".png" && ext != ".gif" {
-			a.Data["code"] = "文件格式不正确！"
-			a.TplName = "add.html"
+			beego.Info("文件格式不正确！")
+			a.Redirect("/addArticle",302)
 			return
 		}
 		// 3.2限制文件大小
 		if head.Size > 20<<20 {
-			a.Data["code"] = "文件不能大于20M"
-			a.TplName = "add.html"
+			beego.Info("文件不能大于20M")
+			a.Redirect("/addArticle",302)
 			return
 		}
 		//3.3给文件重命名
@@ -105,12 +106,14 @@ func (a *ArticleController) HandleAdd() {
 	// 4.将数据插入数据库
 	o := orm.NewOrm()
 	art := models.Article{ArtName:artName,ArtContent:artContent,ArtImg:filePath}
-	if _,err := o.Insert(&art);err != nil {
-		beego.Info("insert date to sql fail")
+	_,err = o.Insert(&art)
+	if err != nil {
+		beego.Info("添加图片至数据库失败")
+		a.Redirect("/addArticle",302)
 		return
 	}
 	// 5.跳转页面（index.html）
-	a.Redirect("index.html",302)
+	a.Redirect("/index",302)
 	//a.TplName = "index.html"
 }
 
@@ -119,7 +122,7 @@ func (a *ArticleController) ShowContent() {
 	// 1.获取文章id
 	id,err  := a.GetInt("id")
 	if err != nil {
-		a.Data["code"] = "获取文章信息错误"
+		beego.Info("获取文章信息错误")
 		a.Redirect("/index",302)
 		return
 	}
@@ -128,14 +131,14 @@ func (a *ArticleController) ShowContent() {
 	article := models.Article{Id:id}
 	err = o.Read(&article)
 	if err != nil {
-		a.Data["code"] = "查询数据库信息失败"
+		beego.Info("查询数据库信息失败")
 		a.Redirect("/index",302)
 		return
 	}
 	// 3.将数据传给视图
 	a.Data["article"] = article
 	// 4.跳转页面
-	a.TplName = "content.html"
+	a.Redirect("/content",302)
 }
 
 // ShowEdit 展示编辑页面
@@ -143,7 +146,7 @@ func (a *ArticleController) ShowEdit() {
 	// 1.获取文章id
 	id,err := a.GetInt("id")
 	if err != nil {
-		a.Data["code"] = "获取文章ID错误"
+		beego.Info("获取文章ID错误")
 		a.Redirect("/index",302)
 		return
 	}
@@ -152,14 +155,14 @@ func (a *ArticleController) ShowEdit() {
 	article := models.Article{Id:id}
 	err = o.Read(&article)
 	if err != nil {
-		a.Data["code"] = "查询数据信息失败"
+		beego.Info("查询数据信息失败")
 		a.Redirect("/index",302)
 		return
 	}
 	// 3.将文章信息传给视图
 	a.Data["article"] = article
 	// 4.跳转页面
-	a.TplName = "edit.html"
+	a.Redirect("/edit",302)
 }
 
 // Edit 编辑文章业务处理
@@ -167,7 +170,7 @@ func (a *ArticleController) Edit() {
 	// 1.获取页面数据
 	id,err := a.GetInt("id")
 	if err != nil {
-		a.Data["code"] = "获取文章ID错误"
+		beego.Info("获取文章ID错误")
 		a.Redirect("/index",302)
 		return
 	}
@@ -175,7 +178,7 @@ func (a *ArticleController) Edit() {
 	content := a.GetString("artcontent")
 	// 2.校验数据
 	if name == "" || content == "" {
-		a.Data["code"] = "名字或内容不能为空"
+		beego.Info("名字或内容不能为空")
 		a.Redirect("/index",302)
 		return
 	}
@@ -185,20 +188,20 @@ func (a *ArticleController) Edit() {
 	if file != nil {
 		defer file.Close()
 		if e != nil {
-			a.Data["code"] = "上传图片失败"
+			beego.Info("上传图片失败")
 			a.Redirect("/index",302)
 			return
 		}
 		// 3.1校验图片的格式
 		ext := path.Ext(head.Filename)
 		if ext != ".jpg" && ext != ".png" && ext != ".gif" {
-			a.Data["code"] = "图片格式不正确"
+			beego.Info("图片格式不正确")
 			a.Redirect("/index",302)
 			return
 		}
 		// 3.2校验图片的大小
 		if head.Size > 20<<20 {
-			a.Data["code"] = "图片大小限制为20M"
+			beego.Info("图片大小限制为20M")
 			a.Redirect("/index",302)
 			return
 		}
@@ -228,14 +231,14 @@ func (a *ArticleController) Edit() {
 		}
 		_,err = o.Update(&art)
 		if err != nil {
-			a.Data["code"] = "更新数据信息失败"
+			beego.Info("更新数据信息失败")
 			a.Redirect("/index",302)
 			return
 		}
 		// 5.跳转页面
 		a.Redirect("/index",302)
 	}else{
-		a.Data["code"] = "读取数据信息失败"
+		beego.Info("读取数据信息失败")
 		a.Redirect("/index",302)
 		return
 	}
@@ -250,13 +253,15 @@ func (a *ArticleController) Delete(){
 	article := models.Article{Id:id}
 	err := o.Read(&article)
 	if err != nil {
-		a.Data["code"] = "获取文章信息失败"
+		beego.Info("获取文章信息失败")
 		a.Redirect("/index",302)
 		return
 	}
 	_,err = o.Delete(&article)
 	if err != nil {
-		a.Data["code"] = "获取文章信息失败"
+		beego.Info("获取文章信息失败")
+		a.Redirect("/index",302)
+		return
 	}
 	// 3.跳转列表页
 	a.Redirect("/index",302)
