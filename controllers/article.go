@@ -48,7 +48,16 @@ func (a *ArticleController) ShowIndex(){
 	if pageIndex == int(pageCount) {
 		isLastPage = true
 	}
+	// 展示下拉类型
+	var types []models.ArticleType
+	_,err = o.QueryTable("article_type").All(&types)
+	if err != nil {
+		beego.Info("获取文章类型错误")
+		a.Redirect("/index",302)
+		return
+	}
 
+	a.Data["types"] = types
 	a.Data["count"] = count
 	a.Data["pageCount"] = pageCount
 	a.Data["pageIndex"] = pageIndex
@@ -60,7 +69,19 @@ func (a *ArticleController) ShowIndex(){
 
 // ShowAdd 展示添加文章界面
 func (a *ArticleController) ShowAdd() {
+	// 展示下拉类型
+	o := orm.NewOrm()
+	var types []models.ArticleType
+	_,err := o.QueryTable("article_type").All(&types)
+	if err != nil {
+		beego.Info("获取文章类型错误")
+		a.Redirect("/index",302)
+		return
+	}
+
+	a.Data["types"] = types
 	a.TplName = "add.html"
+	//a.Redirect("/addArticle",302)
 }
 
 // HandleAdd 处理添加文章业务
@@ -265,4 +286,42 @@ func (a *ArticleController) Delete(){
 	}
 	// 3.跳转列表页
 	a.Redirect("/index",302)
+}
+
+// ShowArtType 展示文章类型
+func (a *ArticleController) ShowArtType() {
+	// 1.读取文章类型表
+	o := orm.NewOrm()
+	var types  []models.ArticleType
+	_,err := o.QueryTable("article_type").All(&types)
+	if  err != nil {
+		beego.Info("获取文章类型错误")
+	}
+	// 2.将数据传给前端视图
+	a.Data["types"] = types
+	a.TplName = "addType.html"
+	//a.Redirect("/addType",302)
+}
+
+// AddType 添加问文章类型
+func (a *ArticleController) AddType() {
+	// 1.获取前端数据
+	typeName := a.GetString("typeName")
+	// 2.数据校验
+	if typeName == "" {
+		beego.Info("类型名为空")
+		a.Redirect("/addType",302)
+		return
+	}
+	// 3.将数据插入类型表
+	o := orm.NewOrm()
+	artType := models.ArticleType{TypeName:typeName}
+	_,err := o.Insert(&artType)
+	if err != nil {
+		beego.Info("添加类型错误")
+		a.Redirect("/addType",302)
+		return
+	}
+	// 4.跳转回类型页面
+	a.Redirect("/addType",302)
 }

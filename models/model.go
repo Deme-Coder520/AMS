@@ -14,9 +14,10 @@ type UserInfo struct {
 	Id int
 	Name string `orm:"unique"`
 	Password string
+	Articles []*Article `orm:"rel(m2m)"`
 }
 
-// Article 文章信息结构体
+// Article 文章信息表
 type Article struct {
 	Id int `orm:"pk;auto"`
 	ArtName string `orm:"size(48);unique"`
@@ -24,6 +25,15 @@ type Article struct {
 	ArtCount int `orm:"default(0)"`
 	ArtContent string
 	ArtImg string `orm:"null"`
+	ArtType *ArticleType `orm:"rel(fk)"`//和类型是一对多的关系
+	Users []*UserInfo `orm:"reverse(many)"`//和用户是多对多的关系
+}
+
+// ArticleType 文章类型表
+type ArticleType struct {
+	Id int
+	TypeName string `orm:"size(48)"`
+	Articles []*Article `orm:"reverse(many)"`
 }
 
 // init 连接数据库
@@ -36,7 +46,7 @@ func init() {
 	}
 	beego.Info("Connect sql success")
 	// 2.映射model 数据
-	orm.RegisterModel(new(UserInfo),new(Article))
+	orm.RegisterModel(new(UserInfo),new(Article),new(ArticleType))
 	// 3.生成表,参数一:数据库别名；参数二：是否强制更新表结构（若表结构该表需要切换成true）；参数三：创建过程在终端是否可见
 	err = orm.RunSyncdb("default",false,true)
 	if  err != nil {

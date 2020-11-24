@@ -11,6 +11,7 @@ func main() {
 	//映射视图函数,必须放在run函数前
 	_=beego.AddFuncMap("PrePage",ShowPrePage)
 	_=beego.AddFuncMap("NextPage",ShowNextPage)
+	_=beego.AddFuncMap("autoKey",AutoKey)
 	beego.Run()
 }
 
@@ -27,3 +28,7 @@ func ShowNextPage(pi int)(next int){
 	return
 }
 
+// AutoKey id自增
+func AutoKey(key int) int {
+	return key + 1
+}
