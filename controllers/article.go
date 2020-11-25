@@ -14,12 +14,36 @@ type ArticleController struct {
 	beego.Controller
 }
 
+// SelectType 文章类型查询
+func (a *ArticleController) SelectType() {
+	// 1.获取前端传过来的参数
+	sel := a.GetString("select")
+	// 2.使用该参数过滤显示数据
+	if sel == "选择类型" {
+		a.ShowIndex()
+	}else{
+		o := orm.NewOrm()
+		var articles []models.Article
+		// RelatedSel("ArticleType")指定关联的表，非惰性查询
+		qs := o.QueryTable("Article").RelatedSel("ArticleType").Filter("ArticleType__TypeName",sel)
+		_,err := qs.All(&articles)
+		if err != nil {
+			beego.Info("获取信息错误")
+			a.Redirect("/index",302)
+			return
+		}
+		a.Data["articles"] = articles
+		// 3.跳转页面
+		a.ShowIndex()
+	}
+}
+
 // ShowIndex 展示首页并实现分页功能
 func (a *ArticleController) ShowIndex(){
 	// 1.查询所有文章数据
 	o := orm.NewOrm()
 	var articles []models.Article
-	querySeter := o.QueryTable("Article")
+	querySeter := o.QueryTable("Article").RelatedSel()
 	/*_,err := querySeter.All(&articles)*/
 	count,_ := querySeter.Count()
 	// 2.设置每一页显示的数量，从而得到总的页数
@@ -33,7 +57,7 @@ func (a *ArticleController) ShowIndex(){
 	}
 	// 3.1每一页显示的个数
 	stat := pageSize*(pageIndex-1)
-	_,err = querySeter.Limit(pageSize,stat).All(&articles)
+	_,err = querySeter.Limit(pageSize,stat).RelatedSel().All(&articles)
 	if err != nil {
 		beego.Info("获取文章数据失败")
 		a.Redirect("/index",302)
@@ -50,7 +74,7 @@ func (a *ArticleController) ShowIndex(){
 	}
 	// 展示下拉类型
 	var types []models.ArticleType
-	_,err = o.QueryTable("article_type").All(&types)
+	_,err = o.QueryTable("ArticleType").All(&types)
 	if err != nil {
 		beego.Info("获取文章类型错误")
 		a.Redirect("/index",302)
@@ -90,10 +114,11 @@ func (a *ArticleController) HandleAdd() {
 	// 1.拿到前端数据
 	artName := a.GetString("artname")
 	artContent := a.GetString("artcontent")
+	typeName := a.GetString("select")
 
 	// 2.校验数据（是否为空）
-	if artName == "" || artContent == "" {
-		beego.Info("文章名或内容不能为空")
+	if artName == "" || artContent == ""|| typeName == "" {
+		beego.Info("数据不能为空")
 		a.Redirect("/addArticle",302)
 		return
 	}
@@ -121,15 +146,22 @@ func (a *ArticleController) HandleAdd() {
 		}
 		//3.3给文件重命名
 		unix := time.Now().Format("20060102_150405") + ext
-		a.SaveToFile("artfile","./static/img/" + unix )//注意文件路径./开头
+		_= a.SaveToFile("artfile","./static/img/" + unix )//注意文件路径./开头
 		filePath = "/static/img/" + unix
 	}
 	// 4.将数据插入数据库
 	o := orm.NewOrm()
-	art := models.Article{ArtName:artName,ArtContent:artContent,ArtImg:filePath}
+	aType := models.ArticleType{TypeName:typeName} //初始化一个ArticleType对象
+	err = o.Read(&aType,"TypeName")
+	if err != nil {
+		beego.Info("获取文章类型失败")
+		a.Redirect("/index",302)
+		return
+	}
+	art := models.Article{ArtName:artName,ArtContent:artContent,ArtImg:filePath,ArtType:&aType}
 	_,err = o.Insert(&art)
 	if err != nil {
-		beego.Info("添加图片至数据库失败")
+		beego.Info("添加文章至数据库失败")
 		a.Redirect("/addArticle",302)
 		return
 	}

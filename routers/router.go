@@ -12,7 +12,7 @@ func init() {
     // 注册
     beego.Router("/register", &controllers.UserController{},"get:ShowRegister;post:HandleRegister")
     // 展示首页
-    beego.Router("/index", &controllers.ArticleController{},"get,post:ShowIndex")
+    beego.Router("/index", &controllers.ArticleController{},"get:ShowIndex;post:SelectType")
     // 添加文章
     beego.Router("/addArticle", &controllers.ArticleController{},"get:ShowAdd;post:HandleAdd")
     // 文章详情
