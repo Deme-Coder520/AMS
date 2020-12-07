@@ -81,6 +81,7 @@ func (a *ArticleController) ShowIndex(){
 		return
 	}
 
+	a.Data["username"] = a.GetSession("username")
 	a.Data["types"] = types
 	a.Data["count"] = count
 	a.Data["pageCount"] = pageCount
