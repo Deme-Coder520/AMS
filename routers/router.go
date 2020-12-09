@@ -19,13 +19,13 @@ func init() {
 	// 添加文章
 	beego.Router("/article/add", &controllers.ArticleController{}, "get:ShowAdd;post:HandleAdd")
 	// 文章详情
-	beego.Router("/content", &controllers.ArticleController{}, "get:ShowContent")
+	beego.Router("/article/content", &controllers.ArticleController{}, "get:ShowContent")
 	// 编辑文章
-	beego.Router("/edit", &controllers.ArticleController{}, "get:ShowEdit;post:Edit")
+	beego.Router("/article/edit", &controllers.ArticleController{}, "get:ShowEdit;post:Edit")
 	// 删除文章
 	beego.Router("/delete", &controllers.ArticleController{}, "get:Delete")
 	// 文章类型
-	beego.Router("/addType", &controllers.ArticleController{}, "get:ShowArtType;post:AddType")
+	beego.Router("/article/addType", &controllers.ArticleController{}, "get:ShowArtType;post:AddType")
 	// 退出
 	beego.Router("/logout", &controllers.UserController{}, "get:LogOut")
 }

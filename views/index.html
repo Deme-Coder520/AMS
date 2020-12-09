@@ -67,11 +67,11 @@
                 {{range .articles}}
                 <tr>
                     <td>{{.ArtName}}</td>
-                    <td><a href="/content?id={{.Id}}">查看详情</a></td>
+                    <td><a href="/article/content?id={{.Id}}">查看详情</a></td>
                     <td> {{.ArtCreateAt.Format "2006-01-02 15:04:05"}}</td>
                     <td>{{.ArtCount}}</td>
-                    <td><a href="/delete?id={{.Id}}" class="del">删除</a> </td>
-                    <td><a href="/edit?id={{.Id}}">编辑</a></td>
+                    <td><a href="/article/delete?id={{.Id}}" class="del">删除</a> </td>
+                    <td><a href="/article/edit?id={{.Id}}">编辑</a></td>
                     <td>{{.ArtType.TypeName}}</td>
                 </tr>
                         {{end}}
