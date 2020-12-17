@@ -3,14 +3,16 @@ package controllers
 import (
 	"AMS/models"
 	"fmt"
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
 	"math"
 	"path"
 	"strconv"
 	"time"
+
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
 )
 
+// ArticleController 自定义控制器
 type ArticleController struct {
 	beego.Controller
 }
