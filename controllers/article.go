@@ -103,11 +103,12 @@ func (a *ArticleController) ShowAdd() {
 	_, err := o.QueryTable("article_type").All(&types)
 	if err != nil {
 		beego.Info("获取文章类型错误")
-		a.Redirect("/index", 302)
+		a.Redirect("/article/index", 302)
 		return
 	}
 
 	a.Data["types"] = types
+	a.Data["username"] = a.GetSession("username")
 	a.TplName = "add.html"
 	//a.Redirect("/addArticle",302)
 }
@@ -123,7 +124,7 @@ func (a *ArticleController) HandleAdd() {
 	// 2.校验数据（是否为空）
 	if artName == "" || artContent == "" || typeName == "" {
 		beego.Info("数据不能为空")
-		a.Redirect("/addArticle", 302)
+		a.Redirect("/article/add", 302)
 		return
 	}
 	// 3.校验文件
@@ -132,20 +133,20 @@ func (a *ArticleController) HandleAdd() {
 		defer file.Close()
 		if err != nil {
 			beego.Info("上传文件失败")
-			a.Redirect("/addArticle", 302)
+			a.Redirect("/article/add", 302)
 			return
 		}
 		// 3.1限制文件的格式.jpg/.png/.gif
 		ext := path.Ext(head.Filename) //获取文件拓展名
 		if ext != ".jpg" && ext != ".png" && ext != ".gif" {
 			beego.Info("文件格式不正确！")
-			a.Redirect("/addArticle", 302)
+			a.Redirect("/article/add", 302)
 			return
 		}
 		// 3.2限制文件大小
 		if head.Size > 20<<20 {
 			beego.Info("文件不能大于20M")
-			a.Redirect("/addArticle", 302)
+			a.Redirect("/article/add", 302)
 			return
 		}
 		//3.3给文件重命名
@@ -159,18 +160,18 @@ func (a *ArticleController) HandleAdd() {
 	err = o.Read(&aType, "TypeName")
 	if err != nil {
 		beego.Info("获取文章类型失败")
-		a.Redirect("/index", 302)
+		a.Redirect("/article/index", 302)
 		return
 	}
 	art := models.Article{ArtName: artName, ArtContent: artContent, ArtImg: filePath, ArtType: &aType}
 	_, err = o.Insert(&art)
 	if err != nil {
 		beego.Info("添加文章至数据库失败")
-		a.Redirect("/addArticle", 302)
+		a.Redirect("/article/add", 302)
 		return
 	}
 	// 5.跳转页面（index.html）
-	a.Redirect("/index", 302)
+	a.Redirect("/article/index", 302)
 	//a.TplName = "index.html"
 }
 
@@ -190,6 +191,7 @@ func (a *ArticleController) ShowContent() {
 		return
 	}
 	// 3.将数据传给视图
+	a.Data["username"] = a.GetSession("username")
 	a.Data["article"] = article
 	// 4.跳转页面
 	a.TplName = "content.html"
@@ -202,14 +204,25 @@ func (a *ArticleController) ShowEdit() {
 	id, _ := a.GetInt("id")
 	// 2.根据id查询文章信息
 	o := orm.NewOrm()
+	// 2.1 获取文章类型
+	var types []models.ArticleType
+	_, err := o.QueryTable("ArticleType").All(&types)
+	if err != nil {
+		beego.Info("获取文章类型错误")
+		a.Redirect("/article/index", 302)
+		return
+	}
+
 	article := models.Article{Id: id}
-	err := o.Read(&article)
+	err = o.Read(&article)
 	if err != nil {
 		beego.Info("查询数据信息失败")
 		a.Redirect("/article/index", 302)
 		return
 	}
 	// 3.将文章信息传给视图
+	a.Data["types"] = types
+	a.Data["username"] = a.GetSession("username")
 	a.Data["article"] = article
 }
 
@@ -219,7 +232,7 @@ func (a *ArticleController) Edit() {
 	id, err := a.GetInt("id")
 	if err != nil {
 		beego.Info("获取文章ID错误")
-		a.Redirect("/index", 302)
+		a.Redirect("/article/index", 302)
 		return
 	}
 	name := a.GetString("artname")
@@ -227,7 +240,7 @@ func (a *ArticleController) Edit() {
 	// 2.校验数据
 	if name == "" || content == "" {
 		beego.Info("名字或内容不能为空")
-		a.Redirect("/index", 302)
+		a.Redirect("/article/index", 302)
 		return
 	}
 	// 3.校验图片是否合法
@@ -237,20 +250,20 @@ func (a *ArticleController) Edit() {
 		defer file.Close()
 		if e != nil {
 			beego.Info("上传图片失败")
-			a.Redirect("/index", 302)
+			a.Redirect("/article/index", 302)
 			return
 		}
 		// 3.1校验图片的格式
 		ext := path.Ext(head.Filename)
 		if ext != ".jpg" && ext != ".png" && ext != ".gif" {
 			beego.Info("图片格式不正确")
-			a.Redirect("/index", 302)
+			a.Redirect("/article/index", 302)
 			return
 		}
 		// 3.2校验图片的大小
 		if head.Size > 20<<20 {
 			beego.Info("图片大小限制为20M")
-			a.Redirect("/index", 302)
+			a.Redirect("/article/index", 302)
 			return
 		}
 		// 3.3将文件重命名
@@ -258,7 +271,7 @@ func (a *ArticleController) Edit() {
 		err := a.SaveToFile("artfile", "./static/img/"+unix)
 		if err != nil {
 			beego.Info("文件保存本地失败")
-			a.Redirect("/index", 302)
+			a.Redirect("/article/index", 302)
 			return
 		}
 		filePath = "/static/img/" + unix
@@ -280,14 +293,14 @@ func (a *ArticleController) Edit() {
 		_, err = o.Update(&art)
 		if err != nil {
 			beego.Info("更新数据信息失败")
-			a.Redirect("/index", 302)
+			a.Redirect("/article/index", 302)
 			return
 		}
 		// 5.跳转页面
-		a.Redirect("/index", 302)
+		a.Redirect("/article/index", 302)
 	} else {
 		beego.Info("读取数据信息失败")
-		a.Redirect("/index", 302)
+		a.Redirect("/article/index", 302)
 		return
 	}
 }
@@ -302,17 +315,17 @@ func (a *ArticleController) Delete() {
 	err := o.Read(&article)
 	if err != nil {
 		beego.Info("获取文章信息失败")
-		a.Redirect("/index", 302)
+		a.Redirect("/article/index", 302)
 		return
 	}
 	_, err = o.Delete(&article)
 	if err != nil {
 		beego.Info("获取文章信息失败")
-		a.Redirect("/index", 302)
+		a.Redirect("/article/index", 302)
 		return
 	}
 	// 3.跳转列表页
-	a.Redirect("/index", 302)
+	a.Redirect("/article/index", 302)
 }
 
 // ShowArtType 展示文章类型
@@ -326,10 +339,11 @@ func (a *ArticleController) ShowArtType() {
 		beego.Info("获取文章类型错误")
 	}
 	// 2.将数据传给前端视图
+	a.Data["username"] = a.GetSession("username")
 	a.Data["types"] = types
 }
 
-// AddType 添加问文章类型
+// AddType 添加文章类型
 func (a *ArticleController) AddType() {
 	// 1.获取前端数据
 	typeName := a.GetString("typeName")
