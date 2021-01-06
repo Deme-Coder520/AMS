@@ -32,7 +32,7 @@ func (a *ArticleController) SelectType() {
 		_, err := qs.All(&articles)
 		if err != nil {
 			beego.Info("获取信息错误")
-			a.Redirect("/index", 302)
+			a.Redirect("/article/index", 302)
 			return
 		}
 		a.Data["articles"] = articles
@@ -63,7 +63,7 @@ func (a *ArticleController) ShowIndex() {
 	_, err = querySeter.Limit(pageSize, stat).RelatedSel().All(&articles)
 	if err != nil {
 		beego.Info("获取文章数据失败")
-		a.Redirect("/index", 302)
+		a.Redirect("/article/index", 302)
 		return
 	}
 	// 4.上一页和下一页限制(视图函数)
@@ -80,7 +80,7 @@ func (a *ArticleController) ShowIndex() {
 	_, err = o.QueryTable("ArticleType").All(&types)
 	if err != nil {
 		beego.Info("获取文章类型错误")
-		a.Redirect("/index", 302)
+		a.Redirect("/article/index", 302)
 		return
 	}
 
@@ -100,7 +100,7 @@ func (a *ArticleController) ShowAdd() {
 	// 展示下拉类型
 	o := orm.NewOrm()
 	var types []models.ArticleType
-	_, err := o.QueryTable("article_type").All(&types)
+	_, err := o.QueryTable("article_type").RelatedSel().All(&types)
 	if err != nil {
 		beego.Info("获取文章类型错误")
 		a.Redirect("/article/index", 302)
@@ -186,7 +186,7 @@ func (a *ArticleController) ShowContent() {
 	article := models.Article{Id: id}
 	err := o.Read(&article)
 	if err != nil {
-		beego.Info("查询数据库信息失败")
+		beego.Info("failed~")
 		a.Redirect("/article/index", 302)
 		return
 	}
@@ -206,7 +206,7 @@ func (a *ArticleController) ShowEdit() {
 	o := orm.NewOrm()
 	// 2.1 获取文章类型
 	var types []models.ArticleType
-	_, err := o.QueryTable("ArticleType").All(&types)
+	_, err := o.QueryTable("ArticleType").RelatedSel().All(&types)
 	if err != nil {
 		beego.Info("获取文章类型错误")
 		a.Redirect("/article/index", 302)
